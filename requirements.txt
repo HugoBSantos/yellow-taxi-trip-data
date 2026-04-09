@@ -1,3 +1,12 @@
-polars
+# Data Ingestion
 kagglehub
+
+# EDA
 ipykernel
+polars
+matplotlib
+seaborn
+
+# Dashboard
+plotly
+streamlit
