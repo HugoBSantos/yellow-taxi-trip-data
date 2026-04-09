@@ -1,0 +1,5 @@
+.venv/
+
+*.csv
+*.parquet
+notebooks/00_teste.ipynb
