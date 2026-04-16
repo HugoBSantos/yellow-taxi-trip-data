@@ -47,10 +47,29 @@ def page_1():
 
 def page_2():
     
-    st.title("2. Análise Exploratória (Insights)")
-    
+    st.header("🔍 2. Análise Exploratória (EDA)")
     df = read_gold_data()
-    st.dataframe(df.head())
+    
+    tab1, tab2, tab3 = st.tabs(["Distribuições", "Sazonalidade", "Correlações"])
+    
+    with tab1:
+        st.subheader("Distribuição do Valor Total")
+        fig = px.histogram(df, x="total_amount", nbins=50, color_discrete_sequence=['#FFD700'])
+        st.plotly_chart(fig, use_container_width=True)
+
+    with tab2:
+        st.subheader("Volume de Corridas por Hora")
+        vendas_hora = df.group_by("hour_of_day").count().sort("hour_of_day")
+        fig = px.line(vendas_hora, x="hour_of_day", y="count", markers=True)
+        st.plotly_chart(fig, use_container_width=True)
+
+    with tab3:
+        st.subheader("Matriz de Correlação")
+        # Apenas colunas numéricas para a correlação
+        num_cols = df.select([pl.col(pl.NUMERIC_DTYPES)])
+        corr_matrix = num_cols.corr().to_pandas()
+        fig = px.imshow(corr_matrix, text_auto=True, aspect="auto", color_continuous_scale='RdBu_r')
+        st.plotly_chart(fig, use_container_width=True)
 
 
 def page_3():
