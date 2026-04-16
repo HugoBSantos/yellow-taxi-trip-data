@@ -240,10 +240,49 @@ def page_4():
 
 def page_5():
     
-    st.title("5. Propostas de Soluções")
+    st.header("💡 5. Propostas de Soluções e Recomendações")
+    st.markdown("""
+    Com base nos resultados das análises descritivas, modelagem e testes de hipóteses, apresentamos as seguintes propostas práticas para a operação de táxis em Nova York.
+    """)
     
-    df = read_gold_data()
-    st.dataframe(df.head())
+    col1, col2 = st.columns(2)
+    with col1:
+        st.subheader("📈 Otimização de Preços")
+        st.markdown("""
+        - **Tarifa baseada na distância:** O modelo mostrou que a distância é o fator mais relevante (R²=0,847).  
+          Recomenda-se uma estrutura tarifária clara por milha (≈ $2,96) + bandeirada ($3,72).
+        - **Desconsiderar passageiros adicionais:** Como o número de passageiros não impacta o preço, tarifas extras por ocupante são injustificáveis.
+        - **Taxas dinâmicas por horário:** A hora do dia tem efeito pequeno, mas significativo. Pode-se aplicar pequenos acréscimos em horários de pico (ex.: +$0,10 entre 18h-20h).
+        """)
+    
+    with col2:
+        st.subheader("💰 Incentivo a Pagamentos em Dinheiro")
+        st.markdown("""
+        - **Gorjeta muito maior:** Pagamentos em dinheiro geram em média $1,45 a mais de gorjeta.
+        - **Sugestão:** Oferecer pequenos descontos ou brindes para clientes que pagam em dinheiro, ou destacar essa opção no aplicativo.
+        - **Impacto estimado:** Considerando 8 milhões de corridas/mês, um aumento de $1,45 por corrida em dinheiro representaria milhões de dólares adicionais para os motoristas.
+        """)
+    
+    st.divider()
+    st.subheader("⚠️ Limitações do Estudo")
+    st.markdown("""
+    - **Dados restritos a janeiro de 2015** – padrões podem variar sazonalmente.
+    - **Amostra de 500 mil registros** (de 10,4 milhões) usada no dashboard – os intervalos de confiança são precisos, mas a representatividade temporal é limitada.
+    - **Modelos lineares simples** – relações não lineares (ex.: tempo de espera, trânsito) não foram capturadas.
+    - **Falta de variáveis como clima, eventos especiais, localização exata** – poderiam melhorar a predição.
+    - **Gorjeta em dinheiro** pode estar subnotificada, já que o dataset só registra gorjetas pagas com cartão (campo `tip_amount` para dinheiro é zero).
+    """)
+    
+    st.divider()
+    st.subheader("🔮 Recomendações para Trabalhos Futuros")
+    st.markdown("""
+    - Incorporar dados de tráfego em tempo real e condições climáticas.
+    - Utilizar modelos mais flexíveis (regressão quantílica, árvores de decisão) para capturar não linearidades.
+    - Estender a análise para outros meses e anos para validar a sazonalidade.
+    - Desenvolver um sistema de recomendação de horários e formas de pagamento para maximizar a renda dos motoristas.
+    """)
+    
+    st.success("📌 As evidências estatísticas mostram que ações focadas na distância e no incentivo ao pagamento em dinheiro têm maior potencial de impacto positivo na receita dos motoristas e na satisfação dos passageiros.")
 
 
 if __name__ == "__main__":
