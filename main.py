@@ -1,7 +1,12 @@
 import streamlit as st
 import polars as pl
 import plotly.express as px
+import plotly.graph_objects as go
 from pathlib import Path
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error, r2_score
+from scipy import stats
+import numpy as np
 
 st.set_page_config(
     page_title="NYC Taxi Analytics",
@@ -74,10 +79,34 @@ def page_2():
 
 def page_3():
     
-    st.title("3. Modelagem Estatística (Regressão Linear)")
-    
+    st.header("🤖 3. Modelagem de Regressão Linear")
     df = read_gold_data()
-    st.dataframe(df.head())
+    
+    st.write("Objetivo: Prever a **Taxa Extra (Rush Hour)** com base na **Hora do Dia**.")
+
+    # Preparação rápida do modelo
+    X = df.select("hour_of_day").to_numpy()
+    y = df.select("extra").to_numpy()
+    
+    model = LinearRegression()
+    model.fit(X, y)
+    y_pred = model.predict(X)
+    
+    # Métricas
+    r2 = r2_score(y, y_pred)
+    mae = mean_absolute_error(y, y_pred)
+    
+    c1, c2 = st.columns(2)
+    c1.metric("R² (Precisão)", f"{r2:.4f}")
+    c2.metric("Erro Médio (MAE)", f"${mae:.2f}")
+
+    # Simulador interativo
+    st.divider()
+    st.subheader("🔮 Simulador de Previsão")
+    input_hora = st.slider("Selecione a Hora do Dia", 0, 23, 17)
+    previsao = model.predict([[input_hora]])[0][0]
+    
+    st.success(f"Para às **{input_hora}h**, a taxa extra estimada é de **${max(0, previsao):.2f}**")
 
 
 def page_4():
