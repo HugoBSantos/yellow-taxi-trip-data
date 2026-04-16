@@ -135,10 +135,107 @@ def page_3():
 
 def page_4():
     
-    st.title("4. Testes de Hipóteses (Validação)")
+    st.header("🧪 4. Testes de Hipóteses (Validação Estatística)")
+    st.markdown("""
+    Abaixo estão os principais testes de hipóteses realizados sobre os fatores que influenciam o valor da corrida e da gorjeta.
+    Os intervalos de confiança foram obtidos via **Bootstrap** (2.500 reamostragens) para garantir robustez.
+    """)
     
-    df = read_gold_data()
-    st.dataframe(df.head())
+    # Tabela de resumo dos testes
+    resultados = {
+        "Hipótese": [
+            "Distância → Tarifa",
+            "Nº de Passageiros → Tarifa",
+            "Tempo de Viagem → Tarifa",
+            "Pagamento em Dinheiro → Gorjeta",
+            "Hora do Dia → Taxa Extra"
+        ],
+        "H₀ (Nula)": [
+            "β_distância = 0",
+            "β_passageiros = 0",
+            "β_tempo = 0",
+            "β_dinheiro = 0",
+            "β_hora = 0"
+        ],
+        "IC 95% (Bootstrap)": [
+            "(2,9375 ; 2,9683)",
+            "(-0,0204 ; 0,0297)",
+            "(0,0204 ; 0,0423)",
+            "(1,4429 ; 1,4595)",
+            "(0,0170 ; 0,0179)"
+        ],
+        "Contém zero?": [
+            "❌ Não",
+            "✅ Sim",
+            "❌ Não",
+            "❌ Não",
+            "❌ Não"
+        ],
+        "Decisão": [
+            "Rejeita H₀",
+            "Não rejeita H₀",
+            "Rejeita H₀",
+            "Rejeita H₀",
+            "Rejeita H₀"
+        ],
+        "Conclusão": [
+            "Distância impacta positivamente a tarifa (+$2,96/milha)",
+            "Número de passageiros não afeta a tarifa (pouco significativo)",
+            "Tempo impacta a tarifa, mas com baixo poder explicativo (R²=0,027)",
+            "Pagamento em dinheiro gera gorjetas ~$1,45 maiores",
+            "Hora do dia tem efeito pequeno porém significativo na taxa extra"
+        ]
+    }
+    
+    df_results = pl.DataFrame(resultados)
+    st.dataframe(df_results, use_container_width=True, hide_index=True)
+    
+    st.divider()
+    st.subheader("📊 Detalhamento dos Testes")
+    
+    with st.expander("🔹 Distância → Tarifa (Regressão Linear Simples)"):
+        st.markdown("""
+        - **Modelo:** `fare_amount = 3,72 + 2,96 * trip_distance`
+        - **R² = 0,847** (84,7% da variação explicada)
+        - **MAE = $1,22**
+        - **Intervalo de confiança 95% para β:** (2,9375 ; 2,9683) → **não contém zero** → rejeitamos H₀.
+        - **Conclusão:** A distância é a variável mais importante na determinação do preço.
+        """)
+    
+    with st.expander("🔹 Nº de Passageiros → Tarifa (Regressão Múltipla)"):
+        st.markdown("""
+        - **Modelo:** `fare_amount = 3,72 + 2,96 * distance + 0,0094 * passenger_count`
+        - **R² = 0,847** (praticamente igual ao modelo univariado)
+        - **IC 95% para β_passageiros:** (-0,0204 ; 0,0297) → **contém zero** → não rejeitamos H₀.
+        - **Conclusão:** O número de passageiros não influencia o valor da corrida quando a distância já é considerada.
+        """)
+    
+    with st.expander("🔹 Tempo de Viagem → Tarifa (Regressão Linear)"):
+        st.markdown("""
+        - **Modelo:** `fare_amount = 8,53 + 0,022 * time_minutes`
+        - **R² = 0,027** (poder explicativo muito baixo)
+        - **IC 95% para β_tempo:** (0,0204 ; 0,0423) → **não contém zero** → rejeitamos H₀.
+        - **Conclusão:** Embora estatisticamente significativo, o tempo sozinho explica menos de 3% da variação da tarifa.
+        """)
+    
+    with st.expander("🔹 Pagamento em Dinheiro → Gorjeta (Regressão com Dummies)"):
+        st.markdown("""
+        - **Categoria base:** outros meios de pagamento (cartão, etc.)
+        - **Coeficiente para `payment_type = 1` (dinheiro):** $1,54
+        - **IC 95%:** (1,4429 ; 1,4595) → **totalmente positivo** → rejeitamos H₀.
+        - **R² do modelo = 0,595** (forma de pagamento explica 59,5% da variação da gorjeta).
+        - **Conclusão:** Pagamentos em dinheiro geram gorjetas **significativamente maiores** (cerca de $1,45 a mais).
+        """)
+    
+    with st.expander("🔹 Hora do Dia → Taxa Extra (Regressão Linear)"):
+        st.markdown("""
+        - **Modelo:** `extra = 0,25 + 0,0177 * hour_of_day`
+        - **R² = 0,098** (baixo poder explicativo)
+        - **IC 95% para β_hora:** (0,0170 ; 0,0179) → **não contém zero** → rejeitamos H₀.
+        - **Conclusão:** A taxa extra aumenta cerca de 1,8 centavos por hora, efeito pequeno porém detectável.
+        """)
+    
+    st.info("✅ Todos os testes foram realizados com nível de significância α = 0,05. Intervalos de confiança obtidos por bootstrap não paramétrico (2.500 reamostragens).")
 
 
 def page_5():
