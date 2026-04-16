@@ -7,6 +7,10 @@ polars
 matplotlib
 seaborn
 
+# Statistical Modelling
+scipy
+scikit-learn
+
 # Dashboard
 plotly
 streamlit
