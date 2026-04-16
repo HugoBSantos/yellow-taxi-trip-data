@@ -22,7 +22,8 @@ def read_gold_data():
     
     lf = lf.select([
         "tpep_pickup_datetime", "trip_distance", "total_amount", 
-        "hour_of_day", "day_of_week", "vendor_id", "payment_type", "extra"
+        "hour_of_day", "day_of_week", "vendor_id", "payment_type", "extra",
+        "pickup_longitude", "pickup_latitude"
     ])
     
     return lf.collect().sample(500000)
@@ -55,7 +56,7 @@ def page_2():
     st.header("🔍 2. Análise Exploratória (EDA)")
     df = read_gold_data()
     
-    tab1, tab2, tab3 = st.tabs(["Distribuições", "Sazonalidade", "Correlações"])
+    tab1, tab2, tab3, tab4 = st.tabs(["Distribuições", "Sazonalidade", "Correlações", "Mapa"])
     
     with tab1:
         st.subheader("Distribuição do Valor Total")
@@ -70,10 +71,26 @@ def page_2():
 
     with tab3:
         st.subheader("Matriz de Correlação")
-        # Apenas colunas numéricas para a correlação
-        num_cols = df.select([pl.col(pl.NUMERIC_DTYPES)])
-        corr_matrix = num_cols.corr().to_pandas()
-        fig = px.imshow(corr_matrix, text_auto=True, aspect="auto", color_continuous_scale='RdBu_r')
+
+        # 1. Selecionamos apenas as colunas numéricas
+        df_corr = df.select(pl.col(pl.NUMERIC_DTYPES))
+
+        # 2. Calculamos a matriz e transformamos em Pandas para o Plotly ler os nomes
+        # .to_pandas() é essencial aqui para manter os headers das colunas
+        corr_matrix = df_corr.corr().to_pandas()
+
+        # 3. Pegamos os nomes das colunas para colocar nos eixos X e Y do gráfico
+        colunas = corr_matrix.columns
+
+        fig = px.imshow(
+            corr_matrix, 
+            x=colunas, # Define os nomes no eixo horizontal
+            y=colunas, # Define os nomes no eixo vertical
+            text_auto=".2f", # Mostra os números dentro dos quadrados com 2 casas decimais
+            aspect="auto", 
+            color_continuous_scale='RdBu_r'
+        )
+
         st.plotly_chart(fig, use_container_width=True)
 
 
