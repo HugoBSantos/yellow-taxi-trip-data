@@ -17,7 +17,7 @@ def read_gold_data():
     
     lf = lf.select([
         "tpep_pickup_datetime", "trip_distance", "total_amount", 
-        "hour_of_day", "day_of_week", "vendor_id", "payment_type"
+        "hour_of_day", "day_of_week", "vendor_id", "payment_type", "extra"
     ])
     
     return lf.collect().sample(500000)
@@ -25,19 +25,24 @@ def read_gold_data():
 
 def page_1():
     
-    st.title("1. Contexto e Limpeza (Bronze -> Gold)")
-    
+    st.header("🧹 1. Contexto e Tratamento de Dados")
     df = read_gold_data()
     
-    bronze_path = Path.cwd() / "data" / "bronze" / "yellow_tripdata_2015-01.csv"
-    lf_bronze = pl.scan_csv(bronze_path)
-    
-    bronze_rows = lf_bronze.collect().shape[0]
-    gold_rows = df.shape[0]
-    
-    col1, col2 = st.columns(2)
-    col1.metric("Linhas antes da limpeza:", bronze_rows)
-    col2.metric("Linhas após a limpeza:", bronze_rows - gold_rows)
+    if df is not None:
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Amostra Analisada", f"{len(df):,}")
+        col2.metric("Período", "Janeiro 2015")
+        col3.metric("Cidade", "New York (Manhattan)")
+
+        st.subheader("Tratamento Realizado (Camada Silver -> Gold)")
+        st.markdown("""
+        - **Remoção de Outliers:** Filtramos distâncias > 10 milhas e valores de tarifa inconsistentes.
+        - **Geofencing:** Coordenadas limitadas ao perímetro de NYC.
+        - **Tratamento de Nulos:** Colunas críticas com valores ausentes foram removidas.
+        - **Tipagem:** Conversão de strings para datetime e mapeamento de IDs para nomes reais.
+        """)
+        st.write("Amostra dos dados limpos:")
+        st.dataframe(df.head(10), use_container_width=True)
 
 
 def page_2():
