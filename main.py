@@ -79,34 +79,58 @@ def page_2():
 
 def page_3():
     
-    st.header("🤖 3. Modelagem de Regressão Linear")
+    st.header("🤖 3. Modelagem de Regressão e Inferência")
     df = read_gold_data()
     
-    st.write("Objetivo: Prever a **Taxa Extra (Rush Hour)** com base na **Hora do Dia**.")
+    st.markdown("""
+    Nesta etapa, analisamos o impacto da **Hora do Dia** no valor da **Taxa Extra**. 
+    Além da previsão, calculamos a precisão do coeficiente usando **Bootstrap**.
+    """)
 
-    # Preparação rápida do modelo
-    X = df.select("hour_of_day").to_numpy()
+    # Preparação dos dados
+    X = df.select("hour_of_day").to_numpy().reshape(-1, 1)
     y = df.select("extra").to_numpy()
     
+    # Modelo
     model = LinearRegression()
     model.fit(X, y)
+    coef = float(np.ravel(model.coef_)[0])
     y_pred = model.predict(X)
     
-    # Métricas
+    # Métricas de Erro
     r2 = r2_score(y, y_pred)
     mae = mean_absolute_error(y, y_pred)
     
-    c1, c2 = st.columns(2)
-    c1.metric("R² (Precisão)", f"{r2:.4f}")
-    c2.metric("Erro Médio (MAE)", f"${mae:.2f}")
+    # --- CÁLCULO DE INTERVALO DE CONFIANÇA (BOOTSTRAP) ---
+    # Usando uma amostra menor para o dashboard ser rápido
+    @st.cache_data
+    def calculate_bootstrap(X_data, y_data):
+        boot_coefs = []
+        n = len(X_data)
+        for _ in range(500): # 500 reamostragens para balanço entre precisão e velocidade
+            idx = np.random.randint(0, n, size=n)
+            m = LinearRegression().fit(X_data[idx], y_data[idx])
+            boot_coefs.append(m.coef_.item())
+        return np.percentile(boot_coefs, 2.5), np.percentile(boot_coefs, 97.5)
 
-    # Simulador interativo
+    ic_inf, ic_sup = calculate_bootstrap(X, y)
+
+    # Exibição de Métricas
+    c1, c2, c3 = st.columns(3)
+    c1.metric("R² (Ajuste)", f"{r2:.4f}")
+    c2.metric("MAE (Erro Médio)", f"${mae:.2f}")
+    c3.metric("Coeficiente (Impacto/h)", f"{coef:.4f}")
+
+    # Exibição do Intervalo de Confiança
+    st.info(f"**Intervalo de Confiança do Coeficiente (95%):** [{ic_inf:.4f} a {ic_sup:.4f}]")
+    st.caption("O intervalo não contém o zero, o que indica que a hora do dia tem um impacto estatisticamente significativo na taxa extra.")
+
+    # Simulador
     st.divider()
     st.subheader("🔮 Simulador de Previsão")
-    input_hora = st.slider("Selecione a Hora do Dia", 0, 23, 17)
-    previsao = model.predict([[input_hora]])[0][0]
-    
-    st.success(f"Para às **{input_hora}h**, a taxa extra estimada é de **${max(0, previsao):.2f}**")
+    input_hora = st.slider("Escolha a Hora para Prever o Extra", 0, 23, 18)
+    previsao = model.predict([[input_hora]]).item()
+    st.success(f"Valor previsto da taxa extra às {input_hora}h: **${max(0, previsao):.2f}**")
 
 
 def page_4():
