@@ -26,23 +26,25 @@ No projeto, os dados passam por um pipeline em camadas:
 
 ## Estrutura do projeto
 
-yellow-taxi-trip-data/
-│
-├── data/
-│ ├── bronze/ # Dados brutos (ingestão)
-│ ├── silver/ # Dados tratados parcialmente
-│ └── gold/ # Dados finais prontos para análise (parquet)
-│
-├── notebooks/
-│ ├── 01_eda.ipynb # Análise exploratória dos dados
-│ └── 02_modelling.ipynb # Modelagem estatística e testes de hipótese
-│
-├── app/
-│ └── main.py # Dashboard interativo (Streamlit)
-│
-├── requirements.txt # Dependências do projeto
-├── README.md # Documentação do projeto
+```
+yellow-taxi-trip-data/  
+│  
+├── data/  
+│ ├── bronze/ # Dados brutos (ingestão)  
+│ ├── silver/ # Dados tratados parcialmente  
+│ └── gold/ # Dados finais prontos para análise (parquet)  
+│  
+├── notebooks/  
+│ ├── 01_eda.ipynb # Análise exploratória dos dados  
+│ └── 02_modelling.ipynb # Modelagem estatística e testes de hipótese  
+│  
+├── app/  
+│ └── main.py # Dashboard interativo (Streamlit)  
+│  
+├── requirements.txt # Dependências do projeto  
+├── README.md # Documentação do projeto  
 └── .gitignore
+```
 
 ### Descrição das Camadas de Dados
 
